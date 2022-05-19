@@ -2,64 +2,60 @@ import React, { useMemo, useEffect, useState } from "react";
 
 import useSWR from "swr";
 import SummaryTable from "./components/SummaryTable/SummaryTable";
-import { COINS_LIST } from "./utils/coingecko/endpoints";
+import { COINS_LIST, COINS_MARKETS } from "./utils/coingecko/endpoints";
 import { axios_fetcher } from "./utils/misc/axios";
 import { paginate } from "./utils/misc/misc";
 
-import { Pagination, Box, Group, TextInput, Button } from "@mantine/core";
+import {
+  Pagination,
+  Box,
+  Group,
+  TextInput,
+  Button,
+  Chips,
+  Chip,
+  InputWrapper,
+  Title,
+} from "@mantine/core";
 import Header from "./components/Header/Header";
 import useDebounce from "./hooks/useDebounce";
 
 const App = () => {
-  const { data, error } = useSWR(COINS_LIST(), axios_fetcher);
-  const isLoading = useMemo(() => !data && !error, [data, error]);
-
+  const [currency, setCurrency] = useState("aud");
+  const [searchString, setSearchString] = useState("");
+  const debouncedSearchString = useDebounce(searchString.toLowerCase());
   // Current Page Number
   const [currentPage, setCurrentPage] = useState<number>(1);
-
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(100);
+  const { data, error } = useSWR(
+    COINS_MARKETS(currentPage, pageSize, currency),
+    axios_fetcher
+  );
+  const filteredData = useMemo(
+    () =>
+      debouncedSearchString && data
+        ? data.filter(
+            (v: any) =>
+              v.id.toLowerCase().includes(debouncedSearchString) ||
+              v.symbol.toLowerCase().includes(debouncedSearchString) ||
+              v.name.toLowerCase().includes(debouncedSearchString)
+          )
+        : data,
+    [data, debouncedSearchString]
+  );
+  const isLoading = useMemo(() => !data && !error, [data, error]);
 
   const totalPages = useMemo(
     () => (data ? Math.ceil(data.length / pageSize) : 0),
     [data, pageSize]
   );
 
-  // Current Coins for page
-  const [currentCoins, setCurrentCoins] = useState<Array<any>>([]);
-
-  const [searchString, setSearchString] = useState("");
-  const debouncedSearchString = useDebounce(searchString);
-
-  useEffect(() => {
-    if (debouncedSearchString) {
-      let filtered = data.filter(
-        (d: any) =>
-          d.name.toLowerCase() === debouncedSearchString.toLowerCase() ||
-          d.symbol.toLowerCase() === debouncedSearchString.toLowerCase() ||
-          d.id.toLowerCase() === debouncedSearchString.toLowerCase()
-      );
-      setCurrentCoins(paginate(filtered, 1, pageSize));
-    } else {
-    }
-  }, [debouncedSearchString, data]);
-
-  useEffect(() => {
-    if (data) {
-      setCurrentCoins(paginate(data, currentPage, pageSize));
-      console.log(data);
-    }
-  }, [currentPage]);
-
-  useEffect(() => {
-    if (data) {
-      setCurrentCoins(paginate(data, 1, pageSize));
-    }
-  }, [data, error, isLoading]);
   return (
     <>
       <Header />
       <div>
         <Box
+          mb={16}
           sx={{
             maxWidth: "960px",
             margin: "auto",
@@ -69,21 +65,39 @@ const App = () => {
             justifyContent: "center",
           }}
         >
-          <Group align={"center"} p={8}>
-            <TextInput
-              label="Search"
-              placeholder="e.g Bitcoin, ETH"
-              value={searchString}
-              onChange={(e) => setSearchString(e.target.value)}
+          <div style={{ padding: "1rem" }}>
+            <Title p={8} sx={{ fontSize: "clamp(1.5rem,5vw,3rem)" }}>
+              Cryptocurrencies
+            </Title>
+            <Group position="apart" p={8} sx={{ width: "100%" }}>
+              <TextInput
+                label="Search"
+                placeholder="e.g Bitcoin, ETH"
+                value={searchString}
+                onChange={(e) => setSearchString(e.target.value)}
+                sx={{ flexGrow: 1 }}
+              />
+              <InputWrapper label="Currency">
+                <Chips
+                  multiple={false}
+                  value={currency}
+                  onChange={setCurrency}
+                  variant="filled"
+                >
+                  <Chip value="usd">USD</Chip>
+                  <Chip value="aud">AUD</Chip>
+                  <Chip value="gbp">GBP</Chip>
+                  <Chip value="eur">EUR</Chip>
+                </Chips>
+              </InputWrapper>
+            </Group>
+            <SummaryTable
+              isLoading={isLoading}
+              coins={filteredData}
+              pageSize={pageSize}
+              currency={currency}
             />
-          </Group>
-          <SummaryTable isLoading={isLoading} coins={currentCoins} />
-          <Pagination
-            page={currentPage}
-            onChange={setCurrentPage}
-            total={totalPages}
-            mt={8}
-          />
+          </div>
         </Box>
       </div>
     </>
@@ -91,11 +105,3 @@ const App = () => {
 };
 
 export default App;
-
-/*
-So
-1. We load the loooong list (1 time only, unless manually reloaded)
-2. We set paginate first page
-3. Components load the required data when required, saving to main state any additional details coming from the server so it doesn't need to cache (but swr is recaching anyway?)
-
-*/

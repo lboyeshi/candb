@@ -1,5 +1,6 @@
 :root {
   --color-candb-blue-1: #192039;
+  --color-candb-blue-2: #34416d;
 }
 
 body {
@@ -11,7 +12,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+* {
+  box-sizing: border-box;
 }

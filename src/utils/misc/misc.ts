@@ -12,8 +12,10 @@ export const generateChartColor = (change: number): string => {
   return "var(--color-candb-blue-1)";
 };
 
-export const formatCurrency = (value: number): string => {
-  console.log(value);
+export const formatCurrency = (
+  value: number,
+  currency: string = "usd"
+): string => {
   const aValue = Math.abs(value);
   switch (true) {
     // not a number
@@ -22,17 +24,42 @@ export const formatCurrency = (value: number): string => {
       return "n/a";
     // billions
     case aValue > 1000000000:
-      return `${value < 0 ? "-" : ""}$${(aValue / 1000000000).toFixed(2)}B`;
+      return `${value < 0 ? "-" : ""}${mapCurrencyToSymbol(currency)}${(
+        aValue / 1000000000
+      ).toFixed(2)}B`;
     // millions
     case aValue > 1000000:
-      return `${value < 0 ? "-" : ""}$${(aValue / 1000000).toFixed(2)}M`;
+      return `${value < 0 ? "-" : ""}${mapCurrencyToSymbol(currency)}${(
+        aValue / 1000000
+      ).toFixed(2)}M`;
     //thousands
     case aValue > 1000:
-      return `${value < 0 ? "-" : ""}$${(aValue / 1000).toFixed(2)}k`;
+      return `${value < 0 ? "-" : ""}${mapCurrencyToSymbol(currency)}${(
+        aValue / 1000
+      ).toFixed(2)}k`;
+    // TODO: Make this work better
     case aValue < 0.001:
-      return `${value < 0 ? "-" : ""}$${aValue}`;
+      return `${mapCurrencyToSymbol(currency)}${"0"}`;
+      return `${value < 0 ? "-" : ""}${mapCurrencyToSymbol(currency)}${aValue}`;
 
     default:
-      return `${value < 0 ? "-" : ""}$${(aValue / 100).toFixed(2)}`;
+      return `${value < 0 ? "-" : ""}${mapCurrencyToSymbol(currency)}${(
+        aValue / 100
+      ).toFixed(2)}`;
+  }
+};
+
+export const mapCurrencyToSymbol = (currency: string) => {
+  switch (currency) {
+    case "usd":
+      return "$";
+    case "gbp":
+      return "£";
+    case "aud":
+      return "A$";
+    case "eur":
+      return "€";
+    default:
+      return "";
   }
 };
