@@ -5,6 +5,4 @@ afterEach(() => {
   cleanup();
 });
 
-test("formatted currency is never too long", () => {
-  expect(true).toBe(true);
-});
+// TODO

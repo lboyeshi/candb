@@ -50,6 +50,7 @@ const generatePathString = (
   viewboxWidth: number,
   viewboxHeight: number
 ) => {
+  if (!values.length) return "";
   // Padding config so graph is never clipped
   const PADDING = 3;
   // (1) Normalize the array of values

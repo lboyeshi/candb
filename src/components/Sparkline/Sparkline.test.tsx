@@ -15,9 +15,15 @@ test("renders valid svg when valid values are provided", () => {
 
 test('returns an empty path when invalid "values" are provided', () => {
   render(<Ticker color={"blue"} values={[1, 6, 3, 3, 8, 18, 3, NaN, 22]} />);
-  const element = screen.getByTestId("valid-svg-path");
+  let element = screen.getByTestId("valid-svg-path");
   expect(element).toBeInTheDocument();
   expect(element).toHaveAttribute("d", "");
+  cleanup();
+  render(<Ticker color={"blue"} values={[]} />);
+  element = screen.getByTestId("valid-svg-path");
+  expect(element).toBeInTheDocument();
+  expect(element).toHaveAttribute("d", "");
+  cleanup();
 });
 
 test('renders "No data" text when no values are provided', () => {

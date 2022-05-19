@@ -36,10 +36,10 @@ const SummaryTable: React.FC<SummaryTableProps> = ({
           </tr>
         </thead>
         <tbody>
-          {true &&
-            new Array(pageSize).map((v, i) => (
+          {isLoading &&
+            new Array(pageSize).fill(1).map((v, i) => (
               <tr key={i}>
-                {new Array(3).map((v, i) => (
+                {new Array(3).fill(1).map((v, i) => (
                   <td>
                     <Skeleton height={DEFAULT_SKELETON_HEIGHT} m={8} />
                   </td>

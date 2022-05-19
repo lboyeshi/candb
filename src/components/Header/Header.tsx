@@ -1,7 +1,5 @@
 import { Group, Skeleton, Text } from "@mantine/core";
-import { auto } from "@popperjs/core";
-import * as React from "react";
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import styled from "styled-components";
 import useSWR from "swr";
 import { GLOBAL } from "../../utils/coingecko/endpoints";
@@ -10,8 +8,6 @@ import { axios_fetcher } from "../../utils/misc/axios";
 const Header = () => {
   const { data, error } = useSWR(GLOBAL(), axios_fetcher);
   const isLoading = useMemo(() => !data && !error, [data, error]);
-
-  console.log(data);
 
   return (
     <>
@@ -75,10 +71,13 @@ const Global = styled.header`
   padding: 8px;
   background-color: var(--color-candb-blue-2);
   height: 35px;
+
   overflow: hidden;
   > div {
     display: flex;
     align-items: center;
+    max-width: 95vw;
+    margin: auto;
     justify-content: space-between;
   }
 `;

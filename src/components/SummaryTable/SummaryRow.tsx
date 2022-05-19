@@ -41,7 +41,7 @@ const SummaryRow: React.FC<SummaryRowProps> = ({
     return (
       <tr style={{ position: "relative" }} {...rest}>
         {/* Name */}
-        <td>
+        <td data-testid={"limited-width-display"}>
           <Box sx={{ flexDirection: "column", alignItems: "flex-start" }}>
             <Text
               weight={700}
@@ -174,5 +174,6 @@ const PChangeContainer = styled.div`
   align-items: center;
   > span {
     font-weight: 700;
+    font-size: clamp(0.8rem, 1vw, 1.2rem);
   }
 `;
